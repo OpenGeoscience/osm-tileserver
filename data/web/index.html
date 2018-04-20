@@ -18,7 +18,7 @@
   	var map = new L.Map('mapContainer', { preferCanvas: true });
 
   	var tileUrl = "/osm_tiles/{z}/{x}/{y}.png";
-  	var osm = new L.TileLayer(tileUrl, {minZoom: 8, maxZoom: 19});
+  	var osm = new L.TileLayer(tileUrl, {minZoom: 1, maxZoom: 19});
 
       map.setView(new L.LatLng(34.052235, -118.243683), 15);
   	map.addLayer(osm);
