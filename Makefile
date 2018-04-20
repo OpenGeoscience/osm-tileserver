@@ -10,7 +10,7 @@ ingest:
 		--database ${PG_DB} \
 		--host ${PG_HOST} \
 		--username ${PG_USER} \
-		--cache ${CACHE_RAM} \
+		--cache ${CACHE} \
 		--number-processes ${NUM_PROCESSES} \
 		pbf/planet.osm.pbf"
 
@@ -24,4 +24,4 @@ serve:
 	docker-compose up
 
 cache-tiles:
-	docker-compose exec renderd render_list -a -z 0 -Z 7
+	docker-compose exec renderd render_list -a -z 0 -Z 7 -f
