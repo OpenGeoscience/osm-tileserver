@@ -18,7 +18,7 @@ RUN apt-get update -y && apt-get upgrade -y && \
 # Install mod_tile
 RUN mkdir /src && git clone https://github.com/openstreetmap/mod_tile/ /src/mod_tile && \
     cd /src/mod_tile && ./autogen.sh && ./configure && make -j4 && \
-    make install && make install-mod_tile
+    make install && make install-mod_tile && ldconfig
 
 # Installing osm-bright stylesheet
 RUN mkdir -p /usr/local/share/maps/style && \
