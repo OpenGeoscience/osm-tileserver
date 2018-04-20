@@ -1,0 +1,7 @@
+version: '3'
+services:
+  renderd:
+    build:
+      context: ./
+      dockerfile: Dockerfile.renderd
+    image: renderd
