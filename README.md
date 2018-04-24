@@ -21,3 +21,48 @@ When changing the memory settings for the box, don't forget to adapt the cache-s
 4. Run `vagrant up`
 5. Wait until provisioning is finished (**depending on your internet connection/host performance, this can take up to several hours!**).
 6. Fire up a browser and open `http://localhost:8080/` to open a Leaflet interface connected to your new tileserver.
+
+## Docker
+
+Create a postgis database.
+
+Clone this repository.
+```
+git clone https://github.com/OpenGeoscience/osm-tileserver.git
+cd osm-tileserver
+```
+
+Change the .env file.
+```
+export PG_HOST=127.0.0.1    # Postgis host
+export PG_PORT=5432    # Postgis port
+export PG_DB=gis    # Postgis database
+export PG_USER=postgis    # Postgis user
+export PG_PASSWORD=letmein    # Postgis password
+export PBF_URL=http://download.geofabrik.de/europe/cyprus-latest.osm.pbf    # pbf file url (http://download.geofabrik.de/)
+export CACHE=4096    # Set this to 75% of the memory that machine has
+export NUM_PROCESSES=4    # Number of cores
+export PORT=9000    # Port for tile server to be up and running
+export TILE_CACHE_DIR=/tmp/mod_tile    # Cache directory on the host computer
+
+```
+
+Source the env file.
+```
+source .env
+```
+
+Do the ingest.
+```
+make ingest
+```
+
+Start serving tiles.
+```
+make serve
+```
+
+After the containers are up, precache tiles.
+```
+make cache-tiles
+```
