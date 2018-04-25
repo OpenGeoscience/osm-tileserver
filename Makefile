@@ -6,7 +6,7 @@ test_db:
 
 ingest:
 	docker build --file Dockerfile.osm2pgsql --build-arg PBF_URL=${PBF_URL} -t osm2pgsql .
-	docker run --net=host -it --rm osm2pgsql -c "osm2pgsql --slim --hstore \
+	docker run --net=host -it --rm osm2pgsql -c "osm2pgsql --hstore \
 		--database ${PG_DB} \
 		--host ${PG_HOST} \
 		--username ${PG_USER} \
