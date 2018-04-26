@@ -1,0 +1,12 @@
+FROM ubuntu:16.04
+
+RUN apt-get update -y && apt-get upgrade -y && \
+    apt-get install -y osm2pgsql curl
+
+ARG PBF_URL
+ENV PBF_URL=${PBF_URL}
+
+RUN mkdir /pbf && curl --output /pbf/planet.osm.pbf ${PBF_URL}
+COPY data/config/osm2pgsql/default.style /
+
+ENTRYPOINT ["/bin/bash"]

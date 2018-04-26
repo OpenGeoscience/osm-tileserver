@@ -1,0 +1,55 @@
+FROM ubuntu:16.04
+
+RUN apt-get update -y && apt-get upgrade -y && \
+    apt-get -y install \
+    	    git \
+	    wget \
+	    curl \
+	    unzip \
+	    autoconf \
+    	    libmapnik3.0 \
+    	    libmapnik-dev \
+    	    mapnik-utils \
+    	    python-mapnik \
+    	    apache2-dev \
+	    gdal-bin \
+	    node-carto
+
+# Install mod_tile
+RUN mkdir /src && git clone https://github.com/openstreetmap/mod_tile/ /src/mod_tile && \
+    cd /src/mod_tile && ./autogen.sh && ./configure && make -j4 && \
+    make install && make install-mod_tile && ldconfig
+
+# Installing osm-bright stylesheet
+RUN mkdir -p /usr/local/share/maps/style && \
+    cd /usr/local/share/maps/style && \
+    wget -q https://github.com/OpenGeoscience/osm-bright/archive/master.zip && \
+    wget -q http://data.openstreetmapdata.com/simplified-land-polygons-complete-3857.zip && \
+    wget -q http://data.openstreetmapdata.com/land-polygons-split-3857.zip && \
+    mkdir ne_10m_populated_places_simple && \
+    cd /usr/local/share/maps/style/ne_10m_populated_places_simple && \
+    wget -q http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_populated_places_simple.zip && \
+    unzip ne_10m_populated_places_simple.zip && rm ne_10m_populated_places_simple.zip && \
+    cd /usr/local/share/maps/style && \
+    unzip '*.zip' && \
+    mkdir osm-bright-master/shp && \
+    mv land-polygons-split-3857 osm-bright-master/shp/ && \
+    cd /usr/local/share/maps/style && \
+    mv simplified-land-polygons-complete-3857 osm-bright-master/shp/ && \
+    mv ne_10m_populated_places_simple osm-bright-master/shp/ && \
+    cd /usr/local/share/maps/style/osm-bright-master/shp/land-polygons-split-3857 && \
+    shapeindex land_polygons.shp && \
+    cd /usr/local/share/maps/style/osm-bright-master/shp/simplified-land-polygons-complete-3857/ && \
+    shapeindex simplified_land_polygons.shp
+
+COPY data/config/osm-bright/ /usr/local/share/maps/style/osm-bright-master/osm-bright/
+COPY data/config/osm-bright/configure.py /usr/local/share/maps/style/osm-bright-master/
+RUN cd /usr/local/share/maps/style/osm-bright-master/ && rm configure.py.sample && \
+    ./make.py && cd ../OSMBright/ && carto project.mml > OSMBright.xml
+
+COPY data/config/renderd/renderd.conf /usr/local/etc/
+# If mapnik is installed with apt-get, plugins_dir is different
+RUN cd /usr/local/etc && sed -i 's~/usr/local/lib/mapnik/input~/usr/lib/mapnik/3.0/input~g' renderd.conf && \
+    mkdir /var/run/renderd
+
+ENTRYPOINT ["/usr/local/bin/renderd", "-f", "-c", "/usr/local/etc/renderd.conf"]

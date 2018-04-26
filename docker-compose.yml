@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  renderd:
+    build:
+      context: ./
+      dockerfile: Dockerfile.renderd
+    image: renderd
+    volumes:
+      - ${TILE_CACHE_DIR}:/var/lib/mod_tile
+      - mod-tile-socket:/var/run/renderd/
+    network_mode: "host"
+
+  apache:
+    depends_on:
+      - renderd
+    build:
+      context: ./
+      dockerfile: Dockerfile.apache
+    image: apache
+    volumes:
+      - ${TILE_CACHE_DIR}:/var/lib/mod_tile
+      - mod-tile-socket:/var/run/renderd/
+    ports:
+      - ${PORT}:80
+
+volumes:
+  mod-tile-socket:

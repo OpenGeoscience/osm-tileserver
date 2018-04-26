@@ -1,0 +1,37 @@
+FROM ubuntu:16.04
+
+RUN apt-get update -y && apt-get upgrade -y && \
+    apt-get -y install \
+    	    git \
+	    wget \
+	    curl \
+	    unzip \
+	    autoconf \
+    	    libmapnik3.0 \
+    	    libmapnik-dev \
+    	    mapnik-utils \
+    	    python-mapnik \
+    	    apache2-dev \
+	    apache2 \
+	    gdal-bin \
+	    node-carto
+
+# Install mod_tile
+RUN mkdir /src && git clone https://github.com/openstreetmap/mod_tile/ /src/mod_tile && \
+    cd /src/mod_tile && ./autogen.sh && ./configure && make -j4 && \
+    make install && make install-mod_tile && ldconfig
+
+RUN echo "LoadModule tile_module /usr/lib/apache2/modules/mod_tile.so" >> /etc/apache2/conf-available/mod_tile.conf && \
+    echo "LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so" >> /etc/apache2/conf-available/mod_tile.conf
+
+COPY data/config/apache2/000-default.conf /etc/apache2/sites-available/
+
+RUN a2enconf mod_tile
+
+COPY data/config/renderd/renderd.conf /usr/local/etc/
+
+RUN rm /var/www/html/index.html
+
+COPY data/web/index.html /var/www/html
+
+ENTRYPOINT ["apachectl", "-D", "FOREGROUND", "-e", "info"]
