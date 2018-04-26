@@ -7,5 +7,6 @@ ARG PBF_URL
 ENV PBF_URL=${PBF_URL}
 
 RUN mkdir /pbf && curl --output /pbf/planet.osm.pbf ${PBF_URL}
+COPY data/config/osm2pgsql/default.style /
 
 ENTRYPOINT ["/bin/bash"]

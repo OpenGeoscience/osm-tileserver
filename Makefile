@@ -12,6 +12,7 @@ ingest:
 		--username \"${PG_USER}\" \
 		--cache \"${CACHE}\" \
 		--number-processes \"${NUM_PROCESSES}\" \
+		--style /default.style \
 		pbf/planet.osm.pbf"
 
 serve:
