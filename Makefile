@@ -24,4 +24,4 @@ serve:
 	docker-compose up
 
 cache-tiles:
-	docker-compose exec renderd render_list -a -z 0 -Z 7 -f
+	docker-compose exec renderd render_list -a -z 0 -Z 10 -f -n "${NUM_PROCESSES}"
