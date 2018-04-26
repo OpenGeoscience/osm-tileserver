@@ -9,11 +9,17 @@ ingest:
 	docker run --net=host -it --rm osm2pgsql -c "PGPASSWORD=\"${PG_PASSWORD}\" osm2pgsql --hstore \
 		--database \"${PG_DB}\" \
 		--host \"${PG_HOST}\" \
+		--port \"${PG_PORT}\" \
 		--username \"${PG_USER}\" \
 		--cache \"${CACHE}\" \
 		--number-processes \"${NUM_PROCESSES}\" \
 		--style /default.style \
-		pbf/planet.osm.pbf"
+		pbf/planet.osm.pbf && \
+		psql -d \"${PG_DB}\" -h \"${PG_HOST}\" -U \"${PG_USER}\" -p \"${PG_PORT}\" \
+		-c 'update planet_osm_line set name=\"name:en\" where \"name:en\" is not null and name!=\"name:en\"; \
+		update planet_osm_point set name=\"name:en\" where \"name:en\" is not null and name!=\"name:en\"; \
+		update planet_osm_polygon set name=\"name:en\" where \"name:en\" is not null and name!=\"name:en\"; \
+		update planet_osm_roads set name=\"name:en\" where \"name:en\" is not null and name!=\"name:en\";'"
 
 serve:
 	sed -i "/\"host\"/c\config[\"postgis\"][\"host\"]=\"${PG_HOST}\"" data/config/osm-bright/configure.py
